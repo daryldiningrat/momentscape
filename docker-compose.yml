@@ -38,7 +38,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "cd packages/database && npx drizzle-kit migrate && cd /app/backend && npm run dev"
 
   frontend:
     build:
@@ -62,7 +61,6 @@ services:
       - /app/packages/database/node_modules
     depends_on:
       - backend
-    command: cd /app/frontend && npm run dev
 
 volumes:
   postgres_data:
