@@ -128,6 +128,7 @@ export default function EditProjectForm({ project }: { project: Project }) {
       <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
         <button onClick={() => setEditing(true)} style={buttonStyle}>Edit</button>
         <button onClick={() => setShowDelete(true)} style={deleteBtnStyle}>Delete</button>
+        <Link href={`/dashboard/projects/${project.id}/invitations`} style={inviteLinkStyle}>Invitations</Link>
         <Link href="/dashboard" style={cancelBtnStyle}>Back</Link>
       </div>
     </div>
@@ -156,3 +157,4 @@ const inputStyle: React.CSSProperties = { padding: "0.5rem", fontSize: "1rem", b
 const buttonStyle: React.CSSProperties = { padding: "0.5rem 1rem", fontSize: "1rem", backgroundColor: "#2563eb", color: "white", border: "none", borderRadius: 6, cursor: "pointer" };
 const deleteBtnStyle: React.CSSProperties = { padding: "0.5rem 1rem", fontSize: "1rem", backgroundColor: "#dc2626", color: "white", border: "none", borderRadius: 6, cursor: "pointer" };
 const cancelBtnStyle: React.CSSProperties = { padding: "0.5rem 1rem", fontSize: "1rem", color: "#aaa", textDecoration: "none" };
+const inviteLinkStyle: React.CSSProperties = { padding: "0.5rem 1rem", fontSize: "1rem", backgroundColor: "#059669", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", textDecoration: "none" };

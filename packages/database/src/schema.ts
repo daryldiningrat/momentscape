@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, integer, uniqueIndex, index, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer, uniqueIndex, index, pgEnum, jsonb } from "drizzle-orm/pg-core";
 
 export const rsvpStatusEnum = pgEnum("rsvp_status", [
   "PENDING",
@@ -117,8 +117,15 @@ export const invitations = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     projectId: uuid("project_id").notNull().references(() => projects.id),
     templateId: uuid("template_id").references(() => templates.id),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    name: text("name").notNull().default("Untitled Invitation"),
+    slug: text("slug").notNull().unique(),
     message: text("message"),
     status: text("status").notNull().default("draft"),
+    version: integer("version").notNull().default(1),
+    sections: jsonb("sections").default([]),
+    design: jsonb("design").default({}),
+    cmsData: jsonb("cms_data").default({}),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -127,6 +134,9 @@ export const invitations = pgTable(
   (table) => [
     index("invitations_project_id_idx").on(table.projectId),
     index("invitations_template_id_idx").on(table.templateId),
+    index("invitations_user_id_idx").on(table.userId),
+    index("invitations_slug_idx").on(table.slug),
+    index("invitations_status_idx").on(table.status),
     index("invitations_deleted_at_idx").on(table.deletedAt),
   ]
 );
