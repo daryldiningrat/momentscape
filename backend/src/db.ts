@@ -1,1 +1,3 @@
-export { prisma } from "@momentscape/database";
+import { db } from "@momentscape/database";
+
+export { db };

@@ -1,21 +1,19 @@
-FROM node:20-alpine
+FROM node:24-slim
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+RUN npm install -g npm@latest
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .npmrc ./
 COPY packages/database/package*.json ./packages/database/
 COPY backend/package*.json ./backend/
-RUN npm ci --workspaces --if-present
+RUN npm install --workspaces --if-present --ignore-scripts
 
-COPY packages/database/prisma ./packages/database/prisma
-COPY packages/database/tsconfig.json ./packages/database/
-COPY packages/database/src ./packages/database/src
-COPY backend/tsconfig.json ./backend/
-COPY backend/src ./backend/src
-
-RUN cd packages/database && npx prisma generate
+COPY packages/ ./packages/
+COPY backend/ ./backend/
 
 EXPOSE 5000
 
 WORKDIR /app/backend
-CMD ["sh", "-c", "cd ../packages/database && npx prisma migrate deploy && cd /app/backend && npm run dev"]
+CMD ["sh", "-c", "cd ../packages/database && npx drizzle-kit migrate && cd /app/backend && npm run dev"]

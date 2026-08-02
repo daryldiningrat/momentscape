@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { prisma } from "../db";
+import { db } from "../db";
+import { sql } from "drizzle-orm";
 
 const router = Router();
 
 router.get("/", async (_req, res) => {
   let dbStatus = "unknown";
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await db.execute(sql`SELECT 1`);
     dbStatus = "connected";
   } catch {
     dbStatus = "disconnected";

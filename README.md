@@ -47,7 +47,7 @@ A full-stack monorepo built with Next.js 14, Express, and PostgreSQL.
 
 - Frontend: Next.js 14 (App Router) in `./frontend`
 - Backend: Express API in `./backend`
-- Database: PostgreSQL 16 managed with Prisma ORM in `./packages/database`
+- Database: PostgreSQL 16 managed with Drizzle ORM in `./packages/database`
 
 ## Scripts
 
@@ -58,14 +58,14 @@ npm run down                                   # docker-compose down
 npm run lint                                   # lint all workspaces
 npm run format                                 # format all files
 npm run test                                   # run all tests
-npm run db:migrate -w @momentscape/database    # deploy Prisma migrations
-npm run db:seed -w @momentscape/database       # seed the database
-npm run db:generate -w @momentscape/database   # regenerate Prisma Client
+npm run db:generate -w @momentscape/database    # generate Drizzle migrations
+npm run db:migrate -w @momentscape/database     # apply Drizzle migrations
+npm run db:seed -w @momentscape/database        # seed the database
 ```
 
 ## Database
 
-Migrations are handled by Prisma. `docker-compose up` automatically deploys migrations. To manually seed development data:
+Migrations are handled by Drizzle Kit. `docker-compose up` automatically applies migrations. To manually seed development data:
 
 ```bash
 npm run db:seed -w @momentscape/database
@@ -77,7 +77,7 @@ The ERD is available at `./docs/erd.md`.
 
 ## Authentication
 
-NextAuth.js with email/password credentials. Sessions are stored in the database.
+NextAuth.js with email/password credentials and JWT session strategy.
 
 - **Sign up:** `/signup`
 - **Sign in:** `/login`

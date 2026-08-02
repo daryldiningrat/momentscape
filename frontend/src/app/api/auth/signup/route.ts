@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { prisma } from "@momentscape/database";
+import { db, users } from "@momentscape/database";
+import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
@@ -20,11 +21,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const existing = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
-    if (existingUser) {
+    if (existing.length > 0) {
       return NextResponse.json(
         { error: "A user with this email already exists" },
         { status: 409 }
@@ -33,12 +36,10 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
+    await db.insert(users).values({
+      name,
+      email,
+      password: hashedPassword,
     });
 
     return NextResponse.json(
