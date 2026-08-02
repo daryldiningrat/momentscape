@@ -81,6 +81,7 @@ export const projects = pgTable(
     userId: uuid("user_id").notNull().references(() => users.id),
     title: text("title").notNull(),
     description: text("description"),
+    type: text("type").notNull().default("wedding"),
     eventDate: timestamp("event_date", { withTimezone: true }),
     location: text("location"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import SignOutButton from "./protected-example/SignOutButton";
+import SignOutButton from "@/components/SignOutButton";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export default async function Home() {
             Signed in as <strong>{session.user?.email}</strong>
           </p>
           <nav style={navStyle}>
-            <Link href="/protected-example">Protected Page</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </nav>
           <SignOutButton />
         </div>
