@@ -1,0 +1,26 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY packages/database/package*.json ./packages/database/
+COPY frontend/package*.json ./frontend/
+RUN npm ci --workspaces --if-present
+
+COPY packages/database/prisma ./packages/database/prisma
+COPY packages/database/tsconfig.json ./packages/database/
+COPY packages/database/src ./packages/database/src
+COPY frontend/tsconfig.json ./frontend/
+COPY frontend/next.config.js ./frontend/
+COPY frontend/next-env.d.ts ./frontend/
+COPY frontend/.eslintrc.json ./frontend/
+COPY frontend/src ./frontend/src
+COPY frontend/public ./frontend/public
+COPY frontend/middleware.ts ./frontend/
+
+RUN cd packages/database && npx prisma generate
+
+EXPOSE 3000
+
+WORKDIR /app/frontend
+CMD ["npm", "run", "dev"]

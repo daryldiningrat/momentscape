@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY packages/database/package*.json ./packages/database/
+COPY backend/package*.json ./backend/
+RUN npm ci --workspaces --if-present
+
+COPY packages/database/prisma ./packages/database/prisma
+COPY packages/database/tsconfig.json ./packages/database/
+COPY packages/database/src ./packages/database/src
+COPY backend/tsconfig.json ./backend/
+COPY backend/src ./backend/src
+
+RUN cd packages/database && npx prisma generate
+
+EXPOSE 5000
+
+WORKDIR /app/backend
+CMD ["sh", "-c", "cd ../packages/database && npx prisma migrate deploy && cd /app/backend && npm run dev"]
