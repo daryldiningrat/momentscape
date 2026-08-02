@@ -1,19 +1,16 @@
-FROM node:24-slim
-
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-RUN npm install -g npm@latest
+FROM node:20
 
 WORKDIR /app
 
 COPY package*.json .npmrc ./
 COPY packages/database/package*.json ./packages/database/
 COPY backend/package*.json ./backend/
-RUN npm install --workspaces --if-present --ignore-scripts
+RUN npm install --workspaces --if-present
 
 COPY packages/ ./packages/
 COPY backend/ ./backend/
 
 EXPOSE 5000
 
-WORKDIR /app/backend
-CMD ["sh", "-c", "cd ../packages/database && npx drizzle-kit migrate && cd /app/backend && npm run dev"]
+WORKDIR /app/packages/database
+CMD npx drizzle-kit migrate --config=/app/packages/database/drizzle.config.ts && cd /app/backend && npm run dev
