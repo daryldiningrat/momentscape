@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import CsvImport from "./CsvImport";
+import ShareTools from "./ShareTools";
 
 const groups = ["Family", "Friends", "Work", "Acquaintances"];
 export const rsvpStatuses = ["PENDING", "CONFIRMED", "DECLINED", "WAITLISTED"];
@@ -16,15 +17,18 @@ interface Guest {
   guestGroup: string;
   rsvpStatus: string;
   viewCount: number;
+  lastViewedAt: string | null;
 }
 
 export default function GuestManager({
   invitationId,
   invitationName,
+  invitationSlug,
   backHref,
 }: {
   invitationId: string;
   invitationName: string;
+  invitationSlug: string;
   backHref: string;
 }) {
   const router = useRouter();
@@ -112,6 +116,8 @@ export default function GuestManager({
   }
 
   const totalPages = Math.ceil(total / 15);
+  const notViewed = guests.filter((g) => g.viewCount === 0).length;
+  const stats = { total: total, viewed: total - notViewed, notViewed, confirmed: guests.filter((g) => g.rsvpStatus === "CONFIRMED").length };
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", maxWidth: 960, margin: "0 auto", padding: "2rem" }}>
@@ -119,6 +125,13 @@ export default function GuestManager({
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
         <h1>Guests — {invitationName}</h1>
         <button onClick={openAdd} style={btnStyle}>+ Add Guest</button>
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", margin: "1rem 0", flexWrap: "wrap" }}>
+        <div style={statBoxStyle}>Total: <strong>{stats.total}</strong></div>
+        <div style={statBoxStyle}>Viewed: <strong>{stats.viewed}</strong></div>
+        <div style={{ ...statBoxStyle, color: stats.notViewed > 0 ? "#f59e0b" : undefined }}>Not Opened: <strong>{stats.notViewed}</strong></div>
+        <div style={statBoxStyle}>Confirmed: <strong>{stats.confirmed}</strong></div>
       </div>
 
       <CsvImport invitationId={invitationId} onDone={fetchGuests} />
@@ -169,6 +182,7 @@ export default function GuestManager({
               <th style={thStyle}>Group</th>
               <th style={thStyle}>RSVP</th>
               <th style={thStyle}>Views</th>
+              <th style={thStyle}>Last Seen</th>
               <th style={thStyle}></th>
             </tr>
           </thead>
@@ -183,6 +197,12 @@ export default function GuestManager({
                   <span style={rsvpBadge(g.rsvpStatus)}>{g.rsvpStatus}</span>
                 </td>
                 <td style={tdStyle}>{g.viewCount}</td>
+                <td style={{ ...tdStyle, color: g.lastViewedAt ? "#aaa" : "#666", fontSize: "0.75rem" }}>
+                  {g.lastViewedAt ? new Date(g.lastViewedAt).toLocaleDateString() : "Never"}
+                </td>
+                <td style={tdStyle}>
+                  <ShareTools slug={invitationSlug} guestName={g.name} guestEmail={g.email} />
+                </td>
                 <td style={tdStyle}>
                   <button onClick={() => openEdit(g)} style={smallBtnStyle}>Edit</button>
                   <button onClick={() => handleDelete(g.id)} style={{ ...smallBtnStyle, backgroundColor: "#dc2626" }}>×</button>
@@ -221,3 +241,4 @@ const filterSelect: React.CSSProperties = { padding: "0.4rem 0.5rem", fontSize: 
 const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse" };
 const thStyle: React.CSSProperties = { textAlign: "left", padding: "0.5rem", fontSize: "0.75rem", color: "#888", borderBottom: "1px solid #333", fontWeight: 600 };
 const tdStyle: React.CSSProperties = { padding: "0.5rem", fontSize: "0.875rem", color: "#fafafa" };
+const statBoxStyle: React.CSSProperties = { padding: "0.35rem 0.75rem", backgroundColor: "#1a1a1a", borderRadius: 6, fontSize: "0.75rem", color: "#aaa", border: "1px solid #333" };

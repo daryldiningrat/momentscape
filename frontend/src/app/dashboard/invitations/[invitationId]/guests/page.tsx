@@ -19,6 +19,7 @@ export default async function GuestsPage({
     <GuestManager
       invitationId={params.invitationId}
       invitationName={invitation.name}
+      invitationSlug={invitation.slug}
       backHref={`/dashboard/projects/${invitation.projectId}/invitations`}
     />
   );
