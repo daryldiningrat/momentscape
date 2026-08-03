@@ -5,7 +5,9 @@
       "Shell(python3 -c \"import yaml; yaml.safe_load(open('docker-compose.yml')); yaml.safe_load(open('.github/workflows/ci.yml')); print('YAML OK')\")",
       "Shell(node -e \"JSON.parse(require('fs').readFileSync('package.json')); JSON.parse(require('fs').readFileSync('frontend/package.json')); JSON.parse(require('fs').readFileSync('backend/package.json')); JSON.parse(require('fs').readFileSync('packages/database/package.json')); console.log('All JSON OK')\")",
       "Shell(node -e JSON.parse(require('fs').readFileSync('packages/database/drizzle/meta/_journal.json')))",
-      "Shell(node -e \"JSON.parse(require('fs').readFileSync('package.json')); JSON.parse(require('fs').readFileSync('frontend/package.json')); console.log('JSON OK')\")"
+      "Shell(node -e \"JSON.parse(require('fs').readFileSync('package.json')); JSON.parse(require('fs').readFileSync('frontend/package.json')); console.log('JSON OK')\")",
+      "Shell(node -e \"JSON.parse(require('fs').readFileSync('package.json')); JSON.parse(require('fs').readFileSync('frontend/package.json')); JSON.parse(require('fs').readFileSync('packages/database/drizzle/meta/_journal.json')); console.log('All JSON OK')\")",
+      "Shell(node -e \"JSON.parse(require('fs').readFileSync('package.json')); console.log('OK')\")"
     ],
     "deny": [],
     "defaultMode": "default"
