@@ -126,6 +126,7 @@ export const invitations = pgTable(
     sections: jsonb("sections").default([]),
     design: jsonb("design").default({}),
     cmsData: jsonb("cms_data").default({}),
+    metadata: jsonb("metadata").default({}),
     sentAt: timestamp("sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

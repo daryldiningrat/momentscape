@@ -8,6 +8,7 @@ import type { CmsData } from "@momentscape/database";
 import { templates, type TemplateId } from "@/templates";
 import TemplateRenderer from "@/components/TemplateRenderer";
 import SectionsEditor from "@/components/SectionsEditor";
+import RsvpFormBuilder from "@/components/RsvpFormBuilder";
 
 const statusOptions = [
   { value: "draft", label: "Draft" },
@@ -26,6 +27,7 @@ export default function InvitationEditor({
   const [message, setMessage] = useState(invitation.message || "");
   const [status, setStatus] = useState(invitation.status);
   const [sections, setSections] = useState((invitation.sections as any[]) || []);
+  const [rsvpQuestions, setRsvpQuestions] = useState((invitation.metadata as any)?.rsvpQuestions || []);
   const [design, setDesign] = useState((invitation.design as any) || {});
   const [colors, setColors] = useState(design.colors || {});
   const [cmsData, setCmsData] = useState<CmsData>((invitation.cmsData as CmsData) || {});
@@ -59,6 +61,7 @@ export default function InvitationEditor({
         sections: d.sections,
         design: d.design,
         cmsData: d.cmsData,
+        metadata: { rsvpQuestions: rsvpQuestions },
       }),
     });
     if (!res.ok) {
@@ -207,6 +210,14 @@ export default function InvitationEditor({
           <SectionsEditor
             sections={sections}
             onChange={(newSections) => { setSections(newSections); markDirty(); }}
+          />
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>RSVP Form Builder</legend>
+          <RsvpFormBuilder
+            questions={rsvpQuestions}
+            onChange={(newQuestions) => { setRsvpQuestions(newQuestions); markDirty(); }}
           />
         </fieldset>
 

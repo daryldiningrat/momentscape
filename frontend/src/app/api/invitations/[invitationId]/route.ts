@@ -87,6 +87,7 @@ export async function PUT(
       sections: body.sections ?? existing.sections,
       design: body.design ?? existing.design,
       cmsData: body.cmsData ?? existing.cmsData,
+      metadata: body.metadata ?? existing.metadata,
     })
     .where(eq(invitations.id, params.invitationId))
     .returning();
