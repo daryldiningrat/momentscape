@@ -50,6 +50,13 @@ export default async function ProjectInvitationsPage({
                 </span>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <Link
+                  href={`/dashboard/invitations/${inv.id}/guests`}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ color: "#60a5fa", fontSize: "0.75rem", textDecoration: "none" }}
+                >
+                  Guests
+                </Link>
                 <span style={statusBadgeStyle(inv.status)}>{inv.status}</span>
                 <span style={{ color: "#666", fontSize: "0.75rem" }}>v{inv.version}</span>
               </div>

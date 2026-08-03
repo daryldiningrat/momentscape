@@ -149,6 +149,7 @@ export const guests = pgTable(
     name: text("name").notNull(),
     email: text("email").notNull(),
     phone: text("phone"),
+    guestGroup: text("guest_group").notNull().default("Family"),
     personalizedLink: text("personalized_link").notNull().unique(),
     rsvpStatus: rsvpStatusEnum("rsvp_status").default("PENDING").notNull(),
     viewCount: integer("view_count").default(0).notNull(),

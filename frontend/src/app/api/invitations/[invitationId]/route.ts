@@ -86,7 +86,7 @@ export async function PUT(
       version: newVersion,
       sections: body.sections ?? existing.sections,
       design: body.design ?? existing.design,
-      templateId: body.templateId !== undefined ? body.templateId : existing.templateId,
+      cmsData: body.cmsData ?? existing.cmsData,
     })
     .where(eq(invitations.id, params.invitationId))
     .returning();

@@ -1,8 +1,10 @@
 export interface InvitationSection {
-  type: "hero" | "details" | "rsvp" | "gallery" | "custom";
-  title?: string;
-  content?: string;
+  id: string;
+  type: "hero" | "story" | "schedule" | "gallery" | "map" | "rsvp" | "custom";
+  title: string;
+  content: string;
   order: number;
+  visible: boolean;
   metadata?: Record<string, unknown>;
 }
 
@@ -10,6 +12,7 @@ export interface InvitationDesign {
   colors?: {
     primary: string;
     secondary: string;
+    accent: string;
     background: string;
     text: string;
   };
@@ -17,7 +20,49 @@ export interface InvitationDesign {
     heading: string;
     body: string;
   };
+  fontFamily?: string;
   templateId?: string;
+}
+
+export interface WeddingEvent {
+  title: string;
+  date: string;
+  time: string;
+  timezone: string;
+  venue: string;
+  address: string;
+  mapLink: string;
+}
+
+export interface WeddingPerson {
+  name: string;
+  nickname: string;
+  parents: string;
+  instagram?: string;
+  photo?: string;
+}
+
+export interface WeddingStoryEvent {
+  year: string;
+  title: string;
+  description: string;
+}
+
+export interface WeddingGalleryImage {
+  url: string;
+  caption: string;
+}
+
+export interface WeddingGiftAccount {
+  bank: string;
+  accountNumber: string;
+  accountName: string;
+}
+
+export interface WeddingGiftItem {
+  name: string;
+  price: string;
+  imageUrl: string;
 }
 
 export interface CmsEventData {
@@ -45,10 +90,27 @@ export interface CmsHostData {
   contactPhone: string;
 }
 
+export interface WeddingCmsData {
+  bride: WeddingPerson;
+  groom: WeddingPerson;
+  quote?: string;
+  quoteReference?: string;
+  story?: WeddingStoryEvent[];
+  akad: WeddingEvent;
+  resepsi: WeddingEvent;
+  liveStreamUrl?: string;
+  gallery?: WeddingGalleryImage[];
+  giftAccounts?: WeddingGiftAccount[];
+  giftAddress?: string;
+  giftItems?: WeddingGiftItem[];
+  weddingHashtag?: string;
+}
+
 export interface CmsData {
   event?: CmsEventData;
   venue?: CmsVenueData;
   host?: CmsHostData;
+  wedding?: WeddingCmsData;
 }
 
 export function validateInvitation(data: {

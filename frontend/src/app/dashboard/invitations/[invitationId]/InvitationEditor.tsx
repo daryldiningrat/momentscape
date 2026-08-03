@@ -5,6 +5,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import type { Invitation } from "@/lib/invitations";
 import type { CmsData } from "@momentscape/database";
+import { templates, type TemplateId } from "@/templates";
+import TemplateRenderer from "@/components/TemplateRenderer";
+import SectionsEditor from "@/components/SectionsEditor";
 
 const statusOptions = [
   { value: "draft", label: "Draft" },
@@ -30,12 +33,16 @@ export default function InvitationEditor({
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [showDelete, setShowDelete] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>(
+    ((invitation.design as any)?.templateId as TemplateId) || "classic"
+  );
+  const [fonts, setFonts] = useState(design.fonts || { heading: "Playfair Display", body: "Inter" });
   const dirtyRef = useRef(false);
   const dataRef = useRef({ name, slug, message, status, sections, design: { colors, fonts: design.fonts || {} }, cmsData });
 
   useEffect(() => {
-    dataRef.current = { name, slug, message, status, sections, design: { colors, fonts: design.fonts || {} }, cmsData };
-  }, [name, slug, message, status, sections, colors, design.fonts, cmsData]);
+    dataRef.current = { name, slug, message, status, sections, design: { ...design, colors, fontFamily: design.fontFamily, fonts, templateId: selectedTemplate }, cmsData };
+  }, [name, slug, message, status, sections, colors, fonts, design.fonts, cmsData, selectedTemplate]);
 
   const saveInvitation = useCallback(async (newStatus?: string) => {
     setSaving(true);
@@ -76,6 +83,11 @@ export default function InvitationEditor({
 
   function markDirty() {
     dirtyRef.current = true;
+  }
+
+  function handleTemplateChange(id: TemplateId) {
+    setSelectedTemplate(id);
+    markDirty();
   }
 
   async function handlePublish() {
@@ -154,6 +166,31 @@ export default function InvitationEditor({
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginTop: "1.5rem" }}>
 
         <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Template</legend>
+          <div style={{ display: "flex", gap: "0.75rem" }}>
+            {(Object.entries(templates) as [TemplateId, { name: string }][]).map(([id, tpl]) => (
+              <button
+                key={id}
+                onClick={() => handleTemplateChange(id)}
+                style={{
+                  flex: 1,
+                  padding: "0.5rem",
+                  fontSize: "0.875rem",
+                  cursor: "pointer",
+                  borderRadius: 6,
+                  border: selectedTemplate === id ? "2px solid #2563eb" : "1px solid #333",
+                  backgroundColor: selectedTemplate === id ? "#1e3a5f" : "#1a1a1a",
+                  color: selectedTemplate === id ? "#fff" : "#fafafa",
+                  fontWeight: selectedTemplate === id ? 600 : 400,
+                }}
+              >
+                {tpl.name}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>Invitation Details</legend>
           <label style={labelStyle}>
             Name
@@ -163,6 +200,14 @@ export default function InvitationEditor({
             Slug
             <input value={slug} onChange={(e) => { setSlug(e.target.value); markDirty(); }} style={inputStyle} />
           </label>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Sections Builder</legend>
+          <SectionsEditor
+            sections={sections}
+            onChange={(newSections) => { setSections(newSections); markDirty(); }}
+          />
         </fieldset>
 
         <fieldset style={fieldsetStyle}>
@@ -248,14 +293,155 @@ export default function InvitationEditor({
         </fieldset>
 
         <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Colors</legend>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.5rem" }}>
-            {["primary", "secondary", "background", "text"].map((key) => (
-              <label key={key} style={labelStyle}>
-                {key}
-                <input type="color" value={(colors as any)[key] || "#000000"} onChange={(e) => { setColors({ ...colors, [key]: e.target.value }); markDirty(); }} style={{ width: "100%", height: 36, border: "1px solid #333", borderRadius: 4, padding: 0 }} />
+          <legend style={legendStyle}>Wedding - Bride</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Full Name <input value={getCmsValue("wedding.bride.name")} onChange={(e) => updateCmsData("wedding.bride.name", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Nickname <input value={getCmsValue("wedding.bride.nickname")} onChange={(e) => updateCmsData("wedding.bride.nickname", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle} css={{ gridColumn: "span 2" }}>Parents <input value={getCmsValue("wedding.bride.parents")} onChange={(e) => updateCmsData("wedding.bride.parents", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Instagram <input value={getCmsValue("wedding.bride.instagram")} onChange={(e) => updateCmsData("wedding.bride.instagram", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Photo URL <input value={getCmsValue("wedding.bride.photo")} onChange={(e) => updateCmsData("wedding.bride.photo", e.target.value)} style={inputStyle} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding - Groom</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Full Name <input value={getCmsValue("wedding.groom.name")} onChange={(e) => updateCmsData("wedding.groom.name", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Nickname <input value={getCmsValue("wedding.groom.nickname")} onChange={(e) => updateCmsData("wedding.groom.nickname", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle} css={{ gridColumn: "span 2" }}>Parents <input value={getCmsValue("wedding.groom.parents")} onChange={(e) => updateCmsData("wedding.groom.parents", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Instagram <input value={getCmsValue("wedding.groom.instagram")} onChange={(e) => updateCmsData("wedding.groom.instagram", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Photo URL <input value={getCmsValue("wedding.groom.photo")} onChange={(e) => updateCmsData("wedding.groom.photo", e.target.value)} style={inputStyle} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding - Quote</legend>
+          <label style={labelStyle}>Quote <textarea value={getCmsValue("wedding.quote")} onChange={(e) => updateCmsData("wedding.quote", e.target.value)} rows={3} style={{ ...inputStyle, resize: "vertical" }} /></label>
+          <label style={labelStyle}>Reference <input value={getCmsValue("wedding.quoteReference")} onChange={(e) => updateCmsData("wedding.quoteReference", e.target.value)} style={inputStyle} /></label>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding - Akad</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Venue <input value={getCmsValue("wedding.akad.venue")} onChange={(e) => updateCmsData("wedding.akad.venue", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Address <input value={getCmsValue("wedding.akad.address")} onChange={(e) => updateCmsData("wedding.akad.address", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Date <input type="date" value={getCmsValue("wedding.akad.date")} onChange={(e) => updateCmsData("wedding.akad.date", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Time <input placeholder="08.00 - selesai" value={getCmsValue("wedding.akad.time")} onChange={(e) => updateCmsData("wedding.akad.time", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Timezone <input value={getCmsValue("wedding.akad.timezone")} onChange={(e) => updateCmsData("wedding.akad.timezone", e.target.value)} style={inputStyle} placeholder="WIB" /></label>
+            <label style={labelStyle}>Map <input value={getCmsValue("wedding.akad.mapLink")} onChange={(e) => updateCmsData("wedding.akad.mapLink", e.target.value)} style={inputStyle} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding - Resepsi</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Venue <input value={getCmsValue("wedding.resepsi.venue")} onChange={(e) => updateCmsData("wedding.resepsi.venue", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Address <input value={getCmsValue("wedding.resepsi.address")} onChange={(e) => updateCmsData("wedding.resepsi.address", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Date <input type="date" value={getCmsValue("wedding.resepsi.date")} onChange={(e) => updateCmsData("wedding.resepsi.date", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Time <input placeholder="11.00 - 13.00" value={getCmsValue("wedding.resepsi.time")} onChange={(e) => updateCmsData("wedding.resepsi.time", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Timezone <input value={getCmsValue("wedding.resepsi.timezone")} onChange={(e) => updateCmsData("wedding.resepsi.timezone", e.target.value)} style={inputStyle} placeholder="WIB" /></label>
+            <label style={labelStyle}>Map <input value={getCmsValue("wedding.resepsi.mapLink")} onChange={(e) => updateCmsData("wedding.resepsi.mapLink", e.target.value)} style={inputStyle} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding - Extra</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Stream URL <input value={getCmsValue("wedding.liveStreamUrl")} onChange={(e) => updateCmsData("wedding.liveStreamUrl", e.target.value)} style={inputStyle} /></label>
+            <label style={labelStyle}>Hashtag <input value={getCmsValue("wedding.weddingHashtag")} onChange={(e) => updateCmsData("wedding.weddingHashtag", e.target.value)} style={inputStyle} placeholder="WeddingFarahDaryl" /></label>
+            <label style={labelStyle} css={{ gridColumn: "span 2" }}>Gift Address <textarea value={getCmsValue("wedding.giftAddress")} onChange={(e) => updateCmsData("wedding.giftAddress", e.target.value)} rows={2} style={{ ...inputStyle, resize: "vertical" }} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Design Customizer</legend>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <p style={{ fontSize: "0.75rem", color: "#888", marginBottom: "0.5rem" }}>Color Palette Presets</p>
+            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
+              {[
+                { name: "Elegant", colors: { primary: "#d4a574", secondary: "#8b7355", accent: "#c9a96e", background: "#faf8f5", text: "#2d2d2d" } },
+                { name: "Bold", colors: { primary: "#1a1a2e", secondary: "#16213e", accent: "#e94560", background: "#0f0f1a", text: "#fafafa" } },
+                { name: "Fresh", colors: { primary: "#2d6a4f", secondary: "#40916c", accent: "#d8f3dc", background: "#f0faf4", text: "#1b4332" } },
+              ].map((theme) => (
+                <button
+                  key={theme.name}
+                  onClick={() => { setColors({ ...theme.colors }); markDirty(); }}
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    fontSize: "0.75rem",
+                    backgroundColor: "#2a2a2a",
+                    border: "1px solid #444",
+                    borderRadius: 6,
+                    color: "#fafafa",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 3, marginBottom: 4 }}>
+                    {Object.values(theme.colors).map((c, i) => (
+                      <span key={i} style={{ width: 12, height: 12, borderRadius: 3, backgroundColor: c, display: "inline-block" }} />
+                    ))}
+                  </div>
+                  {theme.name}
+                </button>
+              ))}
+              <button
+                onClick={() => { setColors({ primary: "#d4a574", secondary: "#8b7355", accent: "#c9a96e", background: "#faf8f5", text: "#2d2d2d" }); markDirty(); }}
+                style={{ padding: "0.5rem 0.75rem", fontSize: "0.75rem", backgroundColor: "#333", border: "1px solid #555", borderRadius: 6, color: "#aaa", cursor: "pointer" }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem", marginBottom: "1rem" }}>
+            {[
+              { key: "primary", label: "Primary" },
+              { key: "secondary", label: "Secondary" },
+              { key: "accent", label: "Accent" },
+              { key: "background", label: "Background" },
+              { key: "text", label: "Text" },
+            ].map(({ key, label }) => (
+              <label key={key} style={{ ...labelStyle, flexDirection: "row", alignItems: "center", gap: "0.5rem" }}>
+                <input
+                  type="color"
+                  value={(colors as any)[key] || "#000000"}
+                  onChange={(e) => { setColors({ ...colors, [key]: e.target.value }); markDirty(); }}
+                  style={{ width: 32, height: 32, border: "1px solid #333", borderRadius: 4, padding: 0, cursor: "pointer" }}
+                />
+                <span style={{ fontSize: "0.75rem" }}>{label}</span>
               </label>
             ))}
+          </div>
+
+          <div style={{ borderTop: "1px solid #333", paddingTop: "1rem" }}>
+            <p style={{ fontSize: "0.75rem", color: "#888", marginBottom: "0.5rem" }}>Typography</p>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <label style={{ ...labelStyle, flex: 1 }}>
+                Heading Font
+                <select
+                  value={fonts.heading}
+                  onChange={(e) => { setFonts({ ...fonts, heading: e.target.value }); markDirty(); }}
+                  style={inputStyle}
+                >
+                  {["Playfair Display", "Inter", "Lora", "Montserrat", "Cormorant Garamond"].map((f) => (
+                    <option key={f} value={f}>{f}</option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ ...labelStyle, flex: 1 }}>
+                Body Font
+                <select
+                  value={fonts.body}
+                  onChange={(e) => { setFonts({ ...fonts, body: e.target.value }); markDirty(); }}
+                  style={inputStyle}
+                >
+                  {["Inter", "Lora", "Montserrat", "Playfair Display", "Cormorant Garamond"].map((f) => (
+                    <option key={f} value={f}>{f}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
         </fieldset>
 
