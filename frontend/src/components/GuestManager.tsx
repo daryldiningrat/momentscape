@@ -15,6 +15,8 @@ interface Guest {
   email: string;
   phone: string | null;
   guestGroup: string;
+  session: string | null;
+  guestLimit: number | null;
   rsvpStatus: string;
   viewCount: number;
   lastViewedAt: string | null;
@@ -46,6 +48,8 @@ export default function GuestManager({
   const [formEmail, setFormEmail] = useState("");
   const [formPhone, setFormPhone] = useState("");
   const [formGroup, setFormGroup] = useState("Family");
+  const [formSession, setFormSession] = useState("");
+  const [formGuestLimit, setFormGuestLimit] = useState("");
   const [formError, setFormError] = useState("");
 
   const fetchGuests = useCallback(async () => {
@@ -71,6 +75,8 @@ export default function GuestManager({
     setFormEmail("");
     setFormPhone("");
     setFormGroup("Family");
+    setFormSession("");
+    setFormGuestLimit("");
     setFormError("");
     setShowForm(true);
   }
@@ -81,6 +87,8 @@ export default function GuestManager({
     setFormEmail(g.email);
     setFormPhone(g.phone || "");
     setFormGroup(g.guestGroup);
+    setFormSession(g.session || "");
+    setFormGuestLimit(g.guestLimit?.toString() || "");
     setFormError("");
     setShowForm(true);
   }
@@ -89,17 +97,26 @@ export default function GuestManager({
     setFormError("");
     if (!formName || !formEmail) { setFormError("Name and email are required"); return; }
 
+    const payload = {
+      name: formName,
+      email: formEmail,
+      phone: formPhone,
+      guestGroup: formGroup,
+      session: formSession || null,
+      guestLimit: formGuestLimit ? Number(formGuestLimit) : null,
+    };
+
     if (editingGuest) {
       await fetch(`/api/invitations/${invitationId}/guests/${editingGuest.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, email: formEmail, phone: formPhone, guestGroup: formGroup }),
+        body: JSON.stringify(payload),
       });
     } else {
       await fetch(`/api/invitations/${invitationId}/guests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, email: formEmail, phone: formPhone, guestGroup: formGroup }),
+        body: JSON.stringify(payload),
       });
     }
 
@@ -163,6 +180,8 @@ export default function GuestManager({
             <select value={formGroup} onChange={(e) => setFormGroup(e.target.value)} style={filterSelect}>
               {groups.map((g) => <option key={g} value={g}>{g}</option>)}
             </select>
+            <input value={formSession} onChange={(e) => setFormSession(e.target.value)} placeholder="Session (e.g. Reguler)" style={filterInput} />
+            <input type="number" value={formGuestLimit} onChange={(e) => setFormGuestLimit(e.target.value)} placeholder="Guest Limit" style={filterInput} />
           </div>
           {formError && <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{formError}</p>}
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
@@ -180,6 +199,8 @@ export default function GuestManager({
               <th style={thStyle}>Email</th>
               <th style={thStyle}>Phone</th>
               <th style={thStyle}>Group</th>
+              <th style={thStyle}>Session</th>
+              <th style={thStyle}>Limit</th>
               <th style={thStyle}>RSVP</th>
               <th style={thStyle}>Views</th>
               <th style={thStyle}>Last Seen</th>
@@ -193,6 +214,8 @@ export default function GuestManager({
                 <td style={tdStyle}>{g.email}</td>
                 <td style={tdStyle}>{g.phone || "—"}</td>
                 <td style={tdStyle}>{g.guestGroup}</td>
+                <td style={tdStyle}>{g.session || "—"}</td>
+                <td style={tdStyle}>{g.guestLimit ?? "—"}</td>
                 <td style={tdStyle}>
                   <span style={rsvpBadge(g.rsvpStatus)}>{g.rsvpStatus}</span>
                 </td>
@@ -211,7 +234,7 @@ export default function GuestManager({
             ))}
             {guests.length === 0 && !loading && (
               <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "#666" }}>No guests found.</td>
+                <td colSpan={9} style={{ ...tdStyle, textAlign: "center", color: "#666" }}>No guests found.</td>
               </tr>
             )}
           </tbody>

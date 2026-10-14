@@ -28,11 +28,11 @@ export default function ClassicTemplate({ data }: { data: TemplateData }) {
           </p>
         )}
 
-        <h1 style={{ fontSize: "3rem", fontWeight: 400, marginBottom: "0.5rem", fontStyle: "italic" }}>
+        <h1 style={{ fontSize: "clamp(2rem, 8vw, 3rem)", fontWeight: 400, marginBottom: "0.5rem", fontStyle: "italic" }}>
           {eventTitle}
         </h1>
 
-        <p style={{ fontSize: "1.5rem", color: colors.primary, marginBottom: "2rem" }}>
+        <p style={{ fontSize: "clamp(1.25rem, 5vw, 1.5rem)", color: colors.primary, marginBottom: "2rem" }}>
           {eventName}
         </p>
 
@@ -40,7 +40,7 @@ export default function ClassicTemplate({ data }: { data: TemplateData }) {
           <div style={{
             border: `2px solid ${colors.primary}`,
             borderRadius: 4,
-            padding: "1.5rem",
+            padding: "clamp(1rem, 3vw, 1.5rem)",
             marginBottom: "2rem",
             display: "inline-block",
           }}>

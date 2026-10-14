@@ -35,11 +35,11 @@ export default function PlayfulTemplate({ data }: { data: TemplateData }) {
           </p>
         )}
 
-        <h1 style={{ fontSize: "3.5rem", fontWeight: 900, margin: "1rem 0 0.5rem", textShadow: "2px 2px 0 rgba(0,0,0,0.1)" }}>
+        <h1 style={{ fontSize: "clamp(2.25rem, 9vw, 3.5rem)", fontWeight: 900, margin: "1rem 0 0.5rem", textShadow: "2px 2px 0 rgba(0,0,0,0.1)" }}>
           {eventTitle}
         </h1>
 
-        <p style={{ fontSize: "1.75rem", marginBottom: "2rem", opacity: 0.95 }}>
+        <p style={{ fontSize: "clamp(1.25rem, 5vw, 1.75rem)", marginBottom: "2rem", opacity: 0.95 }}>
           {eventName}
         </p>
 
@@ -50,7 +50,7 @@ export default function PlayfulTemplate({ data }: { data: TemplateData }) {
             padding: "1.5rem",
             marginBottom: "2rem",
           }}>
-            <p style={{ fontSize: "2rem", fontWeight: 800 }}>{eventDate}</p>
+            <p style={{ fontSize: "clamp(1.5rem, 6vw, 2rem)", fontWeight: 800 }}>{eventDate}</p>
             {eventTime && <p style={{ fontSize: "1.25rem", marginTop: "0.25rem" }}>{eventTime} {timezone}</p>}
           </div>
         )}

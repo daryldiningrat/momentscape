@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface RsvpQuestion {
   id: string;
@@ -23,10 +24,12 @@ export default function GuestRsvpForm({
   guestEmail?: string;
   rsvpQuestions: RsvpQuestion[];
 }) {
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [name, setName] = useState(guestName || "");
   const [email, setEmail] = useState(guestEmail || "");
   const [attending, setAttending] = useState("");
+  const [message, setMessage] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -55,11 +58,13 @@ export default function GuestRsvpForm({
         email,
         attending: attending === "yes",
         answers,
+        message,
       }),
     });
 
     if (res.ok) {
       setSubmitted(true);
+      router.refresh();
     } else {
       const data = await res.json();
       setError(data.error || "Failed to submit RSVP");
@@ -69,7 +74,7 @@ export default function GuestRsvpForm({
 
   if (submitted) {
     return (
-      <section style={{ padding: "4rem 2rem", textAlign: "center", maxWidth: 500, margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
+      <section style={{ padding: "clamp(2rem, 8vw, 4rem) 1rem", textAlign: "center", maxWidth: 500, margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
         <h2 style={{ fontSize: "2rem", fontWeight: 400, marginBottom: "1rem" }}>🎉 Thank You!</h2>
         <p style={{ color: "#888" }}>Your RSVP has been submitted successfully.</p>
         {guestName && <p style={{ color: "#aaa", marginTop: "0.5rem" }}>We look forward to celebrating with you, {guestName}!</p>}
@@ -78,7 +83,7 @@ export default function GuestRsvpForm({
   }
 
   return (
-    <section style={{ padding: "4rem 2rem", textAlign: "center", maxWidth: 500, margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
+    <section style={{ padding: "clamp(2rem, 8vw, 4rem) 1rem", textAlign: "center", maxWidth: 500, margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
       <h2 style={{ fontSize: "2rem", fontWeight: 400, marginBottom: "0.5rem" }}>RSVP</h2>
       <p style={{ color: "#888", marginBottom: "1.5rem" }}>
         {guestName ? `Hi, ${guestName}!` : "You're invited!"} Please confirm your attendance.
@@ -206,6 +211,19 @@ export default function GuestRsvpForm({
             )}
           </div>
         ))}
+
+        <div style={{ textAlign: "left" }}>
+          <label style={{ display: "block", fontWeight: 600, marginBottom: "0.25rem", fontSize: "0.875rem" }}>
+            Doa &amp; Ucapan
+          </label>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={3}
+            placeholder="Write your wishes and prayers for us..."
+            style={{ ...inputStyle, resize: "vertical" }}
+          />
+        </div>
 
         {error && <p style={{ color: "#ef4444", fontSize: "0.875rem" }}>{error}</p>}
 

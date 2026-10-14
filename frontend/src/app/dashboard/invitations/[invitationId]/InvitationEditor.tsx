@@ -9,6 +9,7 @@ import { templates, type TemplateId } from "@/templates";
 import TemplateRenderer from "@/components/TemplateRenderer";
 import SectionsEditor from "@/components/SectionsEditor";
 import RsvpFormBuilder from "@/components/RsvpFormBuilder";
+import RepeatableListEditor from "@/components/RepeatableListEditor";
 
 const statusOptions = [
   { value: "draft", label: "Draft" },
@@ -72,7 +73,7 @@ export default function InvitationEditor({
     }
     setSaving(false);
     router.refresh();
-  }, [invitation.id, router]);
+  }, [invitation.id, router, rsvpQuestions]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -108,13 +109,14 @@ export default function InvitationEditor({
     router.push(`/dashboard/projects/${invitation.projectId}/invitations`);
   }
 
-  function updateCmsData(path: string, value: string) {
+  function updateCmsData(path: string, value: unknown) {
     setCmsData((prev) => {
       const keys = path.split(".");
       const updated: any = { ...prev };
       let current = updated;
       for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...(current[keys[i]] || {}) };
+        const existing = current[keys[i]];
+        current[keys[i]] = Array.isArray(existing) ? [...existing] : { ...(existing || {}) };
         current = current[keys[i]];
       }
       current[keys[keys.length - 1]] = value;
@@ -130,6 +132,15 @@ export default function InvitationEditor({
       current = current?.[key];
     }
     return current || "";
+  }
+
+  function getCmsArray(path: string): any[] {
+    const keys = path.split(".");
+    let current: any = cmsData;
+    for (const key of keys) {
+      current = current?.[key];
+    }
+    return Array.isArray(current) ? current : [];
   }
 
   if (showDelete) {
@@ -361,6 +372,91 @@ export default function InvitationEditor({
             <label style={labelStyle}>Stream URL <input value={getCmsValue("wedding.liveStreamUrl")} onChange={(e) => updateCmsData("wedding.liveStreamUrl", e.target.value)} style={inputStyle} /></label>
             <label style={labelStyle}>Hashtag <input value={getCmsValue("wedding.weddingHashtag")} onChange={(e) => updateCmsData("wedding.weddingHashtag", e.target.value)} style={inputStyle} placeholder="WeddingFarahDaryl" /></label>
             <label style={labelStyle} css={{ gridColumn: "span 2" }}>Gift Address <textarea value={getCmsValue("wedding.giftAddress")} onChange={(e) => updateCmsData("wedding.giftAddress", e.target.value)} rows={2} style={{ ...inputStyle, resize: "vertical" }} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Save the Date</legend>
+          <label style={{ ...labelStyle, flexDirection: "row", alignItems: "center", gap: "0.5rem" }}>
+            <input
+              type="checkbox"
+              checked={Boolean(getCmsValue("wedding.showCountdown"))}
+              onChange={(e) => updateCmsData("wedding.showCountdown", e.target.checked)}
+            />
+            Show countdown &amp; Add to Calendar
+          </label>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Dress Code</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Title <input value={getCmsValue("wedding.dressCode.title")} onChange={(e) => updateCmsData("wedding.dressCode.title", e.target.value)} style={inputStyle} placeholder="A Guide to Attire" /></label>
+            <label style={labelStyle}>Colors (comma-separated hex) <input value={getCmsArray("wedding.dressCode.colors").join(", ")} onChange={(e) => updateCmsData("wedding.dressCode.colors", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} style={inputStyle} placeholder="#d4a574, #8b7355" /></label>
+            <label style={{ ...labelStyle, gridColumn: "span 2" }}>Note <textarea value={getCmsValue("wedding.dressCode.note")} onChange={(e) => updateCmsData("wedding.dressCode.note", e.target.value)} rows={2} style={{ ...inputStyle, resize: "vertical" }} /></label>
+          </div>
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Gallery</legend>
+          <RepeatableListEditor
+            items={getCmsArray("wedding.gallery")}
+            onChange={(items) => updateCmsData("wedding.gallery", items)}
+            fields={[
+              { key: "url", label: "Image URL", type: "url", placeholder: "https://..." },
+              { key: "caption", label: "Caption", placeholder: "Optional" },
+            ]}
+            addLabel="Add image"
+          />
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Our Story</legend>
+          <RepeatableListEditor
+            items={getCmsArray("wedding.story")}
+            onChange={(items) => updateCmsData("wedding.story", items)}
+            fields={[
+              { key: "year", label: "Year", placeholder: "2015" },
+              { key: "title", label: "Title", placeholder: "First Met" },
+              { key: "description", label: "Description", type: "textarea", span: 2 },
+            ]}
+            addLabel="Add story"
+          />
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Wedding Gift</legend>
+          <p style={{ fontSize: "0.75rem", color: "#888", marginBottom: "0.5rem" }}>Bank Accounts (E-Amplop)</p>
+          <RepeatableListEditor
+            items={getCmsArray("wedding.giftAccounts")}
+            onChange={(items) => updateCmsData("wedding.giftAccounts", items)}
+            fields={[
+              { key: "bank", label: "Bank", placeholder: "BCA" },
+              { key: "accountNumber", label: "Account Number", placeholder: "1234567890" },
+              { key: "accountName", label: "Account Name", placeholder: "Farah Audina" },
+            ]}
+            addLabel="Add account"
+          />
+          <p style={{ fontSize: "0.75rem", color: "#888", margin: "1rem 0 0.5rem" }}>Gift Registry (Rekomendasi Kado)</p>
+          <RepeatableListEditor
+            items={getCmsArray("wedding.giftItems")}
+            onChange={(items) => updateCmsData("wedding.giftItems", items)}
+            fields={[
+              { key: "name", label: "Name", placeholder: "Cookware Set" },
+              { key: "price", label: "Price", placeholder: "Rp 899.000" },
+              { key: "imageUrl", label: "Image URL", type: "url", placeholder: "https://..." },
+            ]}
+            addLabel="Add gift"
+          />
+        </fieldset>
+
+        <fieldset style={fieldsetStyle}>
+          <legend style={legendStyle}>Engagement</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label style={labelStyle}>Wedding Frame URL <input value={getCmsValue("wedding.weddingFrameUrl")} onChange={(e) => updateCmsData("wedding.weddingFrameUrl", e.target.value)} style={inputStyle} placeholder="https://instagram.com/..." /></label>
+            <label style={labelStyle}>Share Your Moment URL <input value={getCmsValue("wedding.shareYourMomentUrl")} onChange={(e) => updateCmsData("wedding.shareYourMomentUrl", e.target.value)} style={inputStyle} placeholder="https://instagram.com/..." /></label>
+            <label style={labelStyle}>Souvenir Title <input value={getCmsValue("wedding.souvenirCard.title")} onChange={(e) => updateCmsData("wedding.souvenirCard.title", e.target.value)} style={inputStyle} placeholder="Kartu Souvenir" /></label>
+            <label style={labelStyle}>Souvenir Image URL <input value={getCmsValue("wedding.souvenirCard.imageUrl")} onChange={(e) => updateCmsData("wedding.souvenirCard.imageUrl", e.target.value)} style={inputStyle} placeholder="https://..." /></label>
+            <label style={{ ...labelStyle, gridColumn: "span 2" }}>Health Protocol <textarea value={getCmsValue("wedding.healthProtocol")} onChange={(e) => updateCmsData("wedding.healthProtocol", e.target.value)} rows={2} style={{ ...inputStyle, resize: "vertical" }} /></label>
           </div>
         </fieldset>
 

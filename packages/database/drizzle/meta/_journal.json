@@ -43,6 +43,20 @@
       "when": 1723100000000,
       "tag": "0005_add_metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1723200000000,
+      "tag": "0006_add_rsvp_answers",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1723300000000,
+      "tag": "0007_add_guest_session_limit",
+      "breakpoints": true
     }
   ]
 }
