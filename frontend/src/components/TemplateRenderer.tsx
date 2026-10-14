@@ -12,13 +12,19 @@ export default function TemplateRenderer({
   invitation,
   templateId,
   guestName,
+  guest,
 }: {
   invitation: Invitation;
   templateId?: string | null;
   guestName?: string;
+  guest?: {
+    session?: string | null;
+    guestLimit?: number | null;
+    personalizedLink?: string;
+  };
 }) {
   if (templateId === "wedding") {
-    const weddingData = buildWeddingTemplateData(invitation, guestName);
+    const weddingData = buildWeddingTemplateData(invitation, guestName, guest);
     return <WeddingTemplate data={weddingData} />;
   }
 

@@ -57,6 +57,8 @@ export async function POST(
         email: row.email.trim(),
         phone: row.phone?.trim() || null,
         guestGroup: row.guestGroup?.trim() || "Family",
+        session: row.session?.trim() || null,
+        guestLimit: row.guestLimit != null ? Number(row.guestLimit) : null,
         personalizedLink: generateLink(params.invitationId),
       });
 

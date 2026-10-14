@@ -47,6 +47,18 @@ export interface WeddingTemplateData {
   giftItems: Array<{ name: string; price: string; imageUrl: string }>;
   weddingHashtag?: string;
   guestName?: string;
+  showCountdown?: boolean;
+  dressCode?: { title: string; note: string; colors: string[] };
+  weddingFrameUrl?: string;
+  shareYourMomentUrl?: string;
+  souvenirCard?: { title: string; imageUrl: string };
+  healthProtocol?: string;
+  guest?: {
+    name?: string;
+    session?: string | null;
+    guestLimit?: number | null;
+    personalizedLink?: string;
+  };
   colors: {
     primary: string;
     secondary: string;
@@ -60,7 +72,12 @@ export interface WeddingTemplateData {
 
 export function buildWeddingTemplateData(
   invitation: Invitation,
-  guestName?: string
+  guestName?: string,
+  guestData?: {
+    session?: string | null;
+    guestLimit?: number | null;
+    personalizedLink?: string;
+  }
 ): WeddingTemplateData {
   const cms = (invitation.cmsData as CmsData) || {};
   const wedding: WeddingCmsData = cms.wedding || {} as any;
@@ -112,6 +129,20 @@ export function buildWeddingTemplateData(
     giftItems: wedding.giftItems || [],
     weddingHashtag: wedding.weddingHashtag,
     guestName,
+    showCountdown: wedding.showCountdown,
+    dressCode: wedding.dressCode,
+    weddingFrameUrl: wedding.weddingFrameUrl,
+    shareYourMomentUrl: wedding.shareYourMomentUrl,
+    souvenirCard: wedding.souvenirCard,
+    healthProtocol: wedding.healthProtocol,
+    guest: guestName || guestData
+      ? {
+          name: guestName,
+          session: guestData?.session ?? null,
+          guestLimit: guestData?.guestLimit ?? null,
+          personalizedLink: guestData?.personalizedLink,
+        }
+      : undefined,
     colors: {
       primary: design.colors?.primary || "#d4a574",
       secondary: design.colors?.secondary || "#8b7355",

@@ -12,7 +12,7 @@ export async function PUT(
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { name, email, phone, guestGroup } = body;
+  const { name, email, phone, guestGroup, session: guestSession, guestLimit } = body;
 
   const [updated] = await db
     .update(guests)
@@ -21,6 +21,8 @@ export async function PUT(
       email: email ?? undefined,
       phone,
       guestGroup,
+      session: guestSession ?? null,
+      guestLimit: guestLimit != null ? Number(guestLimit) : null,
     })
     .where(
       and(eq(guests.id, params.guestId), eq(guests.invitationId, params.invitationId), isNull(guests.deletedAt))

@@ -56,7 +56,7 @@ export async function POST(
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, email, phone, guestGroup } = await request.json();
+  const { name, email, phone, guestGroup, session: guestSession, guestLimit } = await request.json();
   if (!name || !email) {
     return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
   }
@@ -71,6 +71,8 @@ export async function POST(
       email,
       phone: phone || null,
       guestGroup: guestGroup || "Family",
+      session: guestSession || null,
+      guestLimit: guestLimit != null ? Number(guestLimit) : null,
       personalizedLink: `${params.invitationId}-${code}`,
     })
     .returning();

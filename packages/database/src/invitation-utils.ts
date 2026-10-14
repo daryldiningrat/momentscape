@@ -65,6 +65,17 @@ export interface WeddingGiftItem {
   imageUrl: string;
 }
 
+export interface WeddingDressCode {
+  title: string;
+  note: string;
+  colors: string[];
+}
+
+export interface WeddingSouvenirCard {
+  title: string;
+  imageUrl: string;
+}
+
 export interface CmsEventData {
   title: string;
   tagline: string;
@@ -104,6 +115,12 @@ export interface WeddingCmsData {
   giftAddress?: string;
   giftItems?: WeddingGiftItem[];
   weddingHashtag?: string;
+  showCountdown?: boolean;
+  dressCode?: WeddingDressCode;
+  weddingFrameUrl?: string;
+  shareYourMomentUrl?: string;
+  souvenirCard?: WeddingSouvenirCard;
+  healthProtocol?: string;
 }
 
 export interface CmsData {

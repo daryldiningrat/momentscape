@@ -41,7 +41,7 @@ export default function ModernTemplate({ data }: { data: TemplateData }) {
           </p>
         )}
 
-        <h1 style={{ fontSize: "2.75rem", fontWeight: 800, lineHeight: 1.1, margin: 0 }}>
+        <h1 style={{ fontSize: "clamp(2rem, 8vw, 2.75rem)", fontWeight: 800, lineHeight: 1.1, margin: 0 }}>
           {eventTitle}
         </h1>
 
@@ -52,7 +52,7 @@ export default function ModernTemplate({ data }: { data: TemplateData }) {
         {eventDate && (
           <div style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
             gap: "1rem",
             marginBottom: "2rem",
           }}>
